@@ -57,6 +57,7 @@ class _RecordPageState extends State<RecordPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.categoryObject.category),
+        titleTextStyle: const TextStyle(fontSize: 32),
       ),
       body: Center(
         child: Column(
