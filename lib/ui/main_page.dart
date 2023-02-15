@@ -22,6 +22,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stopped Watch'),
+        titleTextStyle: const TextStyle(fontSize: 32),
       ),
       body: Center(
         child: Column(
