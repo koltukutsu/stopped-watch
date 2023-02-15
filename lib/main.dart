@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:stopped_watch/color_schemes.g.dart';
+import 'package:stopped_watch/ui/main_page.dart';
 
 import 'count_down_timer-page.dart';
 import 'count_up_timer_page.dart';
@@ -11,69 +13,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MainPage(),
+      theme: ThemeData(useMaterial3: true, colorScheme: lightColorScheme),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkColorScheme),
+      home: const MainPage(),
     );
   }
 }
 
-class MainPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Plugin example app'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.pinkAccent,
-                  padding: const EdgeInsets.all(4),
-                  shape: const StadiumBorder(),
-                ),
-                onPressed: () {
-                  CountUpTimerPage.navigatorPush(context);
-                },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'Go To CountUpTimer',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.pinkAccent,
-                  padding: const EdgeInsets.all(4),
-                  shape: const StadiumBorder(),
-                ),
-                onPressed: () {
-                  CountDownTimerPage.navigatorPush(context);
-                },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'Go To CountDownTimer',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
