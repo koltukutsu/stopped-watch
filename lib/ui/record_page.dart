@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:stopped_watch/color_schemes.g.dart';
+import 'package:stopped_watch/cubit/record/record_cubit.dart';
 import 'package:stopped_watch/data/category_model.dart';
 import 'package:stopped_watch/rounded_button.dart';
 import 'package:stopped_watch/ui/main_page.dart';
 
 class RecordPage extends StatefulWidget {
   final CategoryModel categoryObject;
+  final VoidCallback renderFunction;
 
-  const RecordPage({Key? key, required this.categoryObject}) : super(key: key);
+  const RecordPage(
+      {Key? key, required this.categoryObject, required this.renderFunction})
+      : super(key: key);
 
   @override
   State<RecordPage> createState() => _RecordPageState();
 }
 
 class _RecordPageState extends State<RecordPage> {
+  int min = 0;
+  int sec = 0;
+
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
     mode: StopWatchMode.countUp,
-    onChange: (value) => print('onChange $value'),
-    onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    onChangeRawMinute: (value) => print('onChangeRawMinute $value'),
-    onStopped: () {
-      print('onStop');
-    },
-    onEnded: () {
-      print('onEnded');
-    },
   );
 
   final _scrollController = ScrollController();
@@ -33,14 +32,14 @@ class _RecordPageState extends State<RecordPage> {
   @override
   void initState() {
     super.initState();
-    _stopWatchTimer.rawTime.listen((value) =>
-        print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
-    _stopWatchTimer.minuteTime.listen((value) => print('minuteTime $value'));
-    _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
-    _stopWatchTimer.records.listen((value) => print('records $value'));
-    _stopWatchTimer.fetchStopped
-        .listen((value) => print('stopped from stream'));
-    _stopWatchTimer.fetchEnded.listen((value) => print('ended from stream'));
+    // _stopWatchTimer.rawTime.listen((value) =>
+    //     print('rawTime $value ${StopWatchTimer.getDisplayTime(value)}'));
+    // _stopWatchTimer.minuteTime.listen((value) => print('minuteTime $value'));
+    // _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
+    // _stopWatchTimer.records.listen((value) => print('records $value'));
+    // _stopWatchTimer.fetchStopped
+    //     .listen((value) => print('stopped from stream'));
+    // _stopWatchTimer.fetchEnded.listen((value) => print('ended from stream'));
 
     /// Can be set preset time. This case is "00:01.23".
     // _stopWatchTimer.setPresetTime(mSec: 1234);
@@ -64,158 +63,80 @@ class _RecordPageState extends State<RecordPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Expanded(
-              flex: 9,
-              // child: ListView.builder(
-              //   itemBuilder: (context, index) {
-              //     return Padding(
-              //       padding: const EdgeInsets.symmetric(
-              //           vertical: 4.0, horizontal: 20),
-              //       child: ListTile(
-              //         title: Row(
-              //           children: [
-              //             Text(
-              //                 (widget.categoryObject.recordsList[index].index +
-              //                         1)
-              //                     .toString(),
-              //                 style: const TextStyle(fontSize: 32)),
-              //           ],
-              //         ),
-              //         // subtitle: ,
-              //         trailing: IconButton(
-              //           onPressed: () => showDialog<String>(
-              //             context: context,
-              //             builder: (BuildContext context) => AlertDialog(
-              //               title: const Text('Delete Category'),
-              //               content: Text(
-              //                   'Do you want to delete ${categoryList[index].category} Category'),
-              //               actions: <Widget>[
-              //                 TextButton(
-              //                   onPressed: () =>
-              //                       Navigator.pop(context, 'Cancel'),
-              //                   child: const Text('Cancel'),
-              //                 ),
-              //                 TextButton(
-              //                   onPressed: () {
-              //                     setState(() {
-              //                       widget.categoryObject.recordsList
-              //                           .removeAt(index);
-              //                     });
-              //                     Navigator.pop(context, 'OK');
-              //                   },
-              //                   child: const Text('OK'),
-              //                 ),
-              //               ],
-              //             ),
-              //           ),
-              //           icon: const Icon(Icons.remove_circle),
-              //         ),
-              //         tileColor: darkColorScheme.secondaryContainer,
-              //       ),
-              //     );
-              //   },
-              //   itemCount: widget.categoryObject.recordsList.length,
-              // ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: SizedBox(
-                  height: 100,
-                  child: StreamBuilder<List<StopWatchRecord>>(
-                    stream: _stopWatchTimer.records,
-                    initialData: _stopWatchTimer.records.value,
-                    builder: (context, snap) {
-                      final value = snap.data!;
-                      if (value.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-                      Future.delayed(const Duration(milliseconds: 100), () {
-                        _scrollController.animateTo(
-                            _scrollController.position.maxScrollExtent,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOut);
-                      });
-                      print('Listen records. $value');
-                      return ListView.builder(
-                        controller: _scrollController,
-                        scrollDirection: Axis.vertical,
-                        itemBuilder: (BuildContext context, int index) {
-                          final data = value[index];
-                          final splittedData = data.displayTime!.split(":");
-                          print(splittedData);
-                          final refactoredData = splittedData.sublist(1);
-                          final refactoredString =
-                              refactoredData.join(":").split(".")[0];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4.0, horizontal: 20),
-                            child: ListTile(
-                              title: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text((index + 1).toString(),
-                                      style: const TextStyle(fontSize: 32)),
-                                  Text(refactoredString,
-                                      style: const TextStyle(fontSize: 32)),
-                                ],
-                              ),
-                              // subtitle: ,
-                              trailing: IconButton(
-                                onPressed: () => showDialog<String>(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                    title: const Text('Delete Category'),
-                                    content: Text(
-                                        'Do you want to delete ${categoryList[index].category} Category'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, 'Cancel'),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            value.removeAt(index);
-                                          });
-                                          Navigator.pop(context, 'OK');
-                                        },
-                                        child: const Text('OK'),
-                                      ),
-                                    ],
-                                  ),
+            if (widget.categoryObject.recordsList.isNotEmpty)
+              Expanded(
+                flex: 9,
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4.0, horizontal: 20),
+                      child: ListTile(
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                                (widget.categoryObject.recordsList[index]
+                                            .index +
+                                        1)
+                                    .toString(),
+                                style: const TextStyle(fontSize: 32)),
+                            Text(
+                                widget.categoryObject.recordsList[index]
+                                    .recordedTime,
+                                style: const TextStyle(fontSize: 24))
+                          ],
+                        ),
+                        // subtitle: ,
+                        trailing: IconButton(
+                          onPressed: () => showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              title: const Text('Delete Category'),
+                              content: Text(
+                                  'Do you want to delete ${index + 1}. Record'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, 'Cancel'),
+                                  child: const Text('Cancel'),
                                 ),
-                                icon: const Icon(Icons.remove_circle),
-                              ),
-                              tileColor: darkColorScheme.secondaryContainer,
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      widget.categoryObject.recordsList
+                                          .removeAt(index);
+                                      widget.categoryObject.average =
+                                          giveAverage(
+                                              recordsList: widget
+                                                  .categoryObject.recordsList);
+                                    });
+                                    context.read<RecordCubit>().saveRecords();
+                                    widget.renderFunction();
+                                    Navigator.pop(context, 'OK');
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
                             ),
-                          );
-                          // return Column(
-                          //   children: <Widget>[
-                          //     Padding(
-                          //       padding: const EdgeInsets.all(8),
-                          //       child: Text(
-                          //         '${index + 1} ${data.displayTime}',
-                          //         style: const TextStyle(
-                          //             fontSize: 17,
-                          //             fontFamily: 'Helvetica',
-                          //             fontWeight: FontWeight.bold),
-                          //       ),
-                          //     ),
-                          //     const Divider(
-                          //       height: 1,
-                          //     )
-                          //   ],
-                          // );
-                        },
-                        itemCount: value.length,
-                      );
-                    },
-                  ),
+                          ),
+                          icon: const Icon(Icons.remove_circle),
+                        ),
+                        tileColor: darkColorScheme.secondaryContainer,
+                      ),
+                    );
+                  },
+                  itemCount: widget.categoryObject.recordsList.length,
                 ),
-              ),
-            ),
+              )
+            else
+              const Expanded(
+                  flex: 9,
+                  child: Center(
+                      child: Text(
+                    "Add Records",
+                    style: TextStyle(fontSize: 32),
+                  ))),
             Expanded(
               flex: 6,
               child: Padding(
@@ -243,8 +164,10 @@ class _RecordPageState extends State<RecordPage> {
                                   stream: _stopWatchTimer.minuteTime,
                                   initialData: _stopWatchTimer.minuteTime.value,
                                   builder: (context, snap) {
-                                    final value = snap.data;
-                                    print('Listen every minute. $value');
+                                    final value2 = snap.data;
+                                    final value = value2! % 60;
+                                    min = value;
+
                                     return Container(
                                       decoration: BoxDecoration(
                                           color: darkColorScheme.surfaceVariant,
@@ -292,8 +215,10 @@ class _RecordPageState extends State<RecordPage> {
                                   stream: _stopWatchTimer.secondTime,
                                   initialData: _stopWatchTimer.secondTime.value,
                                   builder: (context, snap) {
-                                    final value = snap.data;
-                                    print('Listen every second. $value');
+                                    final value2 = snap.data;
+                                    final value = value2! % 60;
+                                    sec = value;
+
                                     return Container(
                                       decoration: BoxDecoration(
                                           color: darkColorScheme.surfaceVariant,
@@ -358,7 +283,9 @@ class _RecordPageState extends State<RecordPage> {
                                   const EdgeInsets.symmetric(horizontal: 4),
                               child: RoundedButton(
                                 color: Colors.red,
-                                onTap: _stopWatchTimer.onResetTimer,
+                                onTap: () {
+                                  _stopWatchTimer.onResetTimer();
+                                },
                                 child: const Text(
                                   'Reset',
                                   style: TextStyle(color: Colors.white),
@@ -376,7 +303,46 @@ class _RecordPageState extends State<RecordPage> {
                                         .copyWith(right: 8),
                                     child: RoundedButton(
                                       color: Colors.deepPurpleAccent,
-                                      onTap: _stopWatchTimer.onAddLap,
+                                      onTap: () {
+                                        if (min == 0 && sec == 0) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(const SnackBar(
+                                                  content: Text(
+                                                      "You must first Start the Stop Watch")));
+                                        } else {
+                                          print("$min:$sec");
+                                          final String recMin = min < 10
+                                              ? "0$min"
+                                              : min.toString();
+                                          final String recSec = sec < 10
+                                              ? "0$sec"
+                                              : sec.toString();
+                                          final String recordedTime =
+                                              "$recMin:$recSec";
+                                          final int time = min * 60 + sec;
+                                          // final int
+                                          setState(() {
+                                            widget.categoryObject.recordsList
+                                                .add(RecordModel(
+                                                    index: widget.categoryObject
+                                                        .recordsList.length,
+                                                    time: time,
+                                                    recordedTime:
+                                                        recordedTime));
+                                            widget.categoryObject.average =
+                                                giveAverage(
+                                                    recordsList: widget
+                                                        .categoryObject
+                                                        .recordsList);
+                                          });
+
+                                          context
+                                              .read<RecordCubit>()
+                                              .saveRecords();
+                                          widget.renderFunction();
+                                        }
+                                        // _stopWatchTimer.onAddLap();
+                                      },
                                       child: const Text(
                                         'Lap',
                                         style: TextStyle(color: Colors.white),
@@ -398,5 +364,18 @@ class _RecordPageState extends State<RecordPage> {
         ),
       ),
     );
+  }
+
+  int giveAverage({required List<RecordModel> recordsList}) {
+    int average = 0;
+    for (RecordModel record in recordsList) {
+      average += record.time;
+    }
+    try {
+      average = average ~/ recordsList.length;
+    } catch (e) {
+      average = 0;
+    }
+    return average;
   }
 }
