@@ -37,20 +37,22 @@ class RecordModel {
   final int index;
   final int time;
   final String recordedTime;
-
+  final String recordedDate;
   RecordModel(
-      {required this.index, required this.time, required this.recordedTime});
+      {required this.index, required this.time, required this.recordedTime, required this.recordedDate});
 
   Map<String, dynamic> toJsonObject() {
     return {
       'index': index,
       'time': time,
       'recordedTime': recordedTime,
+      'recordedDate': recordedDate,
     };
   }
 
   RecordModel.fromJsonObject(Map<String, dynamic> json)
       : index = json['index'],
         time = json['time'],
+        recordedDate = json['recordedDate'],
         recordedTime = json['recordedTime'];
 }

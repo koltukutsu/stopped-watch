@@ -89,12 +89,23 @@ class _RecordPageState extends State<RecordPage> {
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                                (widget.categoryObject.recordsList[index]
-                                            .index +
-                                        1)
-                                    .toString(),
-                                style: const TextStyle(fontSize: 32)),
+                            Row(
+                              children: [
+                                Text(
+                                    (widget.categoryObject.recordsList[index]
+                                                .index +
+                                            1)
+                                        .toString(),
+                                    style: TextStyle(fontSize: 18, color: darkColorScheme.primary, fontWeight: FontWeight.w200)),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(
+                                      widget.categoryObject.recordsList[index]
+                                          .recordedDate,
+                                      style: const TextStyle(fontSize: 24, )),
+                                ),
+                              ],
+                            ),
                             Text(
                                 widget.categoryObject.recordsList[index]
                                     .recordedTime,
@@ -371,7 +382,7 @@ class _RecordPageState extends State<RecordPage> {
                                   });
                                   _stopWatchTimer.onResetTimer();
                                 },
-                                child: Icon(Icons.fiber_manual_record,
+                                child: Icon(Icons.refresh,
                                     color: darkColorScheme.errorContainer),
                               ),
                             ),
@@ -403,12 +414,17 @@ class _RecordPageState extends State<RecordPage> {
                                           final String recordedTime =
                                               "$recMin:$recSec.$ms";
                                           final int time = min * 60 + sec;
+                                          final DateTime now = DateTime.now();
+                                          final String nowDate =
+                                              "${now.day < 10 ? '0${now.day}' : now.day}/${now.month < 10 ? '0${now.month}' : now.month}/${now.year}";
+
                                           // final int
                                           setState(() {
                                             widget.categoryObject.recordsList
                                                 .add(RecordModel(
                                                     index: widget.categoryObject
                                                         .recordsList.length,
+                                                    recordedDate: nowDate,
                                                     time: time,
                                                     recordedTime:
                                                         recordedTime));

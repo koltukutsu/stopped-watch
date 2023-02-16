@@ -121,17 +121,27 @@ class _MainPageState extends State<MainPage> {
                                     icon: const Icon(Icons.remove_circle),
                                   ),
                                   title: Row(
+                                    mainAxisSize: MainAxisSize.max,
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                          context
-                                              .read<RecordCubit>()
-                                              .categoryList[index]
-                                              .category,
-                                          style: const TextStyle(fontSize: 32)),
-                                      Text(prompt,
-                                          style: const TextStyle(fontSize: 24))
+                                      Expanded(
+                                        flex: 8,
+                                        child: Text(
+                                            context
+                                                .read<RecordCubit>()
+                                                .categoryList[index]
+                                                .category,
+                                            style: const TextStyle(fontSize: 32)),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                          child: Text(prompt,
+                                              style: const TextStyle(fontSize: 24)),
+                                        ),
+                                      )
                                     ],
                                   ),
                                   // subtitle: ,
@@ -199,12 +209,16 @@ class _MainPageState extends State<MainPage> {
                             )),
                         actions: <Widget>[
                           TextButton(
-                            onPressed: () => Navigator.pop(context, 'Cancel'),
+                            onPressed: () {
+                              _controller.clear();
+                              Navigator.pop(context, 'Cancel');
+                            },
                             child: const Text('Cancel'),
                           ),
                           TextButton(
                             onPressed: () {
                               textFieldCategorySendFunction();
+                              _controller.clear();
                             },
                             child: const Text('OK'),
                           ),
