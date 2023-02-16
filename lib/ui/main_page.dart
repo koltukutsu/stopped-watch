@@ -15,6 +15,8 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final TextEditingController _controller = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -28,10 +30,24 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
+  textFieldCategorySendFunction() {
+    if (_controller.text.isNotEmpty) {
+      setState(() {
+        context.read<RecordCubit>().categoryList.add(CategoryModel(
+            category: _controller.text.trim(),
+            average: 0,
+            recordsList: <RecordModel>[]));
+        context.read<RecordCubit>().saveRecords();
+      });
+      Navigator.pop(context, 'OK');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Category field cannot be blank")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController _controller = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stopped Watch'),
@@ -127,8 +143,7 @@ class _MainPageState extends State<MainPage> {
                                           categoryObject: context
                                               .read<RecordCubit>()
                                               .categoryList[index],
-                                        renderFunction: reRenderTheWidget
-                                      ),
+                                          renderFunction: reRenderTheWidget),
                                     ));
                                   },
                                   tileColor: darkColorScheme.secondaryContainer,
@@ -160,7 +175,7 @@ class _MainPageState extends State<MainPage> {
                 Container(
                   color: darkColorScheme.background,
                 ),
-                ElevatedButton(
+                TextButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: darkColorScheme.surfaceTint,
                     foregroundColor: Colors.pinkAccent,
@@ -172,7 +187,16 @@ class _MainPageState extends State<MainPage> {
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
                         title: const Text('Add Category'),
-                        content: TextField(controller: _controller),
+                        content: TextField(
+                            onSubmitted: (String taken) {
+                              print(
+                                  "that is what is taken: $textFieldCategorySendFunction");
+                              textFieldCategorySendFunction();
+                            },
+                            controller: _controller,
+                            decoration: const InputDecoration(
+                              labelText: "Category Name",
+                            )),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -180,18 +204,7 @@ class _MainPageState extends State<MainPage> {
                           ),
                           TextButton(
                             onPressed: () {
-                              setState(() {
-                                if (_controller.text.isNotEmpty) {
-                                  context.read<RecordCubit>().categoryList.add(
-                                      CategoryModel(
-                                          category: _controller.text,
-                                          average: 0,
-                                          recordsList: <RecordModel>[]));
-                                }
-                                context.read<RecordCubit>().saveRecords();
-                              });
-
-                              Navigator.pop(context, 'OK');
+                              textFieldCategorySendFunction();
                             },
                             child: const Text('OK'),
                           ),
@@ -201,9 +214,19 @@ class _MainPageState extends State<MainPage> {
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Add Category',
-                      style: TextStyle(color: darkColorScheme.onPrimary),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child:
+                              Icon(Icons.add, color: darkColorScheme.onPrimary),
+                        ),
+                        Text(
+                          'Add Category',
+                          style: TextStyle(color: darkColorScheme.onPrimary),
+                        ),
+                      ],
                     ),
                   ),
                 ),

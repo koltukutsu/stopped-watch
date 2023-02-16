@@ -22,7 +22,8 @@ class RecordPage extends StatefulWidget {
 class _RecordPageState extends State<RecordPage> {
   int min = 0;
   int sec = 0;
-
+  int ms = 0;
+  bool started = false;
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
     mode: StopWatchMode.countUp,
   );
@@ -53,9 +54,22 @@ class _RecordPageState extends State<RecordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final int average = widget.categoryObject.average;
+    int minutes = (average ~/ 60);
+    int seconds = average % 60;
+    final String prompt =
+        "${minutes < 10 ? '0$minutes' : minutes}:${seconds < 10 ? '0$seconds' : seconds}";
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryObject.category),
+        title: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(widget.categoryObject.category),
+            Text(prompt),
+          ],
+        ),
         titleTextStyle: const TextStyle(fontSize: 32),
       ),
       body: Center(
@@ -138,10 +152,10 @@ class _RecordPageState extends State<RecordPage> {
                     style: TextStyle(fontSize: 32),
                   ))),
             Expanded(
-              flex: 6,
+              flex: 4,
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
                 child: Stack(alignment: Alignment.center, children: [
                   Container(
                     decoration: BoxDecoration(
@@ -159,7 +173,7 @@ class _RecordPageState extends State<RecordPage> {
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(left: 30.0),
+                                padding: const EdgeInsets.only(left: 15.0),
                                 child: StreamBuilder<int>(
                                   stream: _stopWatchTimer.minuteTime,
                                   initialData: _stopWatchTimer.minuteTime.value,
@@ -199,6 +213,8 @@ class _RecordPageState extends State<RecordPage> {
                                   },
                                 ),
                               ),
+
+                              /// seconds
                               const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                                 child: Text(
@@ -210,86 +226,153 @@ class _RecordPageState extends State<RecordPage> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: StreamBuilder<int>(
-                                  stream: _stopWatchTimer.secondTime,
-                                  initialData: _stopWatchTimer.secondTime.value,
-                                  builder: (context, snap) {
-                                    final value2 = snap.data;
-                                    final value = value2! % 60;
-                                    sec = value;
+                                padding: const EdgeInsets.only(right: 0.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    StreamBuilder<int>(
+                                      stream: _stopWatchTimer.secondTime,
+                                      initialData:
+                                          _stopWatchTimer.secondTime.value,
+                                      builder: (context, snap) {
+                                        final value2 = snap.data;
+                                        final value = value2! % 60;
+                                        sec = value;
 
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                          color: darkColorScheme.surfaceVariant,
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Padding(
-                                          padding: const EdgeInsets.all(8),
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                              color: darkColorScheme
+                                                  .surfaceVariant,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                      topRight:
+                                                          Radius.circular(10),
+                                                      topLeft:
+                                                          Radius.circular(10),
+                                                      bottomLeft:
+                                                          Radius.circular(10))),
+                                          child: Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 4),
+                                                child: Text(
+                                                  "${value! < 10 ? '0$value' : value}",
+                                                  style: const TextStyle(
+                                                    fontSize: 45,
+                                                    fontFamily: 'Helvetica',
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              )),
+                                        );
+                                      },
+                                    ),
+
+                                    /// miliseconds
+                                    StreamBuilder<int>(
+                                      stream: _stopWatchTimer.rawTime,
+                                      initialData:
+                                          _stopWatchTimer.rawTime.value,
+                                      builder: (context, snap) {
+                                        final value = snap.data!;
+                                        final int valueInt =
+                                            (((value % 1000) ~/ 10).round());
+                                        ms = valueInt;
+                                        final String msValue = valueInt < 10
+                                            ? "0$valueInt"
+                                            : valueInt.toString();
+
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                              gradient:
+                                                  LinearGradient(stops: const [
+                                                0.02,
+                                                0.02
+                                              ], colors: [
+                                                darkColorScheme.errorContainer,
+                                                darkColorScheme.surfaceVariant
+                                              ]),
+                                              color: darkColorScheme
+                                                  .surfaceVariant,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                      topRight:
+                                                          Radius.circular(10),
+                                                      bottomRight:
+                                                          Radius.circular(10))),
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 4),
                                             child: Text(
-                                              "${value! < 10 ? '0$value' : value}",
+                                              msValue,
                                               style: const TextStyle(
-                                                fontSize: 45,
+                                                fontSize: 32,
                                                 fontFamily: 'Helvetica',
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                          )),
-                                    );
-                                  },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
 
-                        /// Display every second.
-
-                        /// Lap time.
-
                         /// Button
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: RoundedButton(
-                                color: Colors.lightBlue,
-                                onTap: _stopWatchTimer.onStartTimer,
-                                child: const Text(
-                                  'Start',
-                                  style: TextStyle(color: Colors.white),
+                            if (!started)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: RoundedButton(
+                                  color: Colors.lightBlue,
+                                  onTap: () {
+                                    _stopWatchTimer.onStartTimer();
+                                    setState(() {
+                                      started = true;
+                                    });
+                                  },
+                                  child: Icon(Icons.play_arrow,
+                                      color: darkColorScheme.primary),
+                                ),
+                              )
+                            else
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: RoundedButton(
+                                  color: Colors.green,
+                                  onTap: () {
+                                    setState(() {
+                                      started = false;
+                                    });
+                                    _stopWatchTimer.onStopTimer();
+                                  },
+                                  child: Icon(Icons.pause,
+                                      color: darkColorScheme.primary),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: RoundedButton(
-                                color: Colors.green,
-                                onTap: _stopWatchTimer.onStopTimer,
-                                child: const Text(
-                                  'Stop',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 4),
                               child: RoundedButton(
                                 color: Colors.red,
                                 onTap: () {
+                                  setState(() {
+                                    started = false;
+                                  });
                                   _stopWatchTimer.onResetTimer();
                                 },
-                                child: const Text(
-                                  'Reset',
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                                child: Icon(Icons.fiber_manual_record,
+                                    color: darkColorScheme.errorContainer),
                               ),
                             ),
                             Padding(
@@ -299,18 +382,18 @@ class _RecordPageState extends State<RecordPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Padding(
-                                    padding: const EdgeInsets.all(0)
+                                    padding: const EdgeInsets.symmetric(
+                                            horizontal: 4)
                                         .copyWith(right: 8),
                                     child: RoundedButton(
                                       color: Colors.deepPurpleAccent,
                                       onTap: () {
-                                        if (min == 0 && sec == 0) {
+                                        if (min == 0 && sec == 0 && ms == 0) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(const SnackBar(
                                                   content: Text(
                                                       "You must first Start the Stop Watch")));
                                         } else {
-                                          print("$min:$sec");
                                           final String recMin = min < 10
                                               ? "0$min"
                                               : min.toString();
@@ -318,7 +401,7 @@ class _RecordPageState extends State<RecordPage> {
                                               ? "0$sec"
                                               : sec.toString();
                                           final String recordedTime =
-                                              "$recMin:$recSec";
+                                              "$recMin:$recSec.$ms";
                                           final int time = min * 60 + sec;
                                           // final int
                                           setState(() {
@@ -340,13 +423,19 @@ class _RecordPageState extends State<RecordPage> {
                                               .read<RecordCubit>()
                                               .saveRecords();
                                           widget.renderFunction();
+
+                                          setState(() {
+                                            started = true;
+                                          });
+
+                                          /// Reset the stopwatch
+                                          _stopWatchTimer.onResetTimer();
+                                          _stopWatchTimer.onStartTimer();
                                         }
                                         // _stopWatchTimer.onAddLap();
                                       },
-                                      child: const Text(
-                                        'Lap',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
+                                      child: Icon(Icons.add_circle,
+                                          color: darkColorScheme.primary),
                                     ),
                                   ),
                                 ],
