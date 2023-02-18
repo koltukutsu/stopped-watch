@@ -81,6 +81,7 @@ class _RecordPageState extends State<RecordPage> {
               Expanded(
                 flex: 9,
                 child: ListView.builder(
+                  reverse: true,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(
